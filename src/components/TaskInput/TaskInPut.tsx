@@ -1,32 +1,50 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
+import { Task } from '../../@types/task.type'
 import styles from './taskInput.module.scss'
 
-interface TaskInPutProps {
+interface TaskInputProps {
   addTask: (name: string) => void
+  currentTask: Task | null
+  editTask: (name: string) => void
+  finishEditTask: () => void
 }
-function TaskInPut(props: TaskInPutProps) {
-  const { addTask } = props
+
+export default function TaskinPut(props: TaskInputProps) {
+  const { addTask, currentTask, editTask, finishEditTask } = props
   const [name, setName] = useState<string>('')
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
-    addTask(name)
-    setName('')
+    if (currentTask) {
+      finishEditTask()
+      if (name) setName('')
+    } else {
+      addTask(name)
+      setName('')
+    }
   }
 
-  const onChangInput = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const onChangeInput = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { value } = event.target
-    setName(value)
+    if (currentTask?.name) {
+      editTask(value)
+    } else {
+      setName(value)
+    }
   }
+
   return (
     <div className='mb-2 '>
-      <h1 className={styles.title}> To do List typescript</h1>
+      <h1 className={styles.title}> To Do List Typescript</h1>
       <form className={styles.form} onSubmit={handleSubmit}>
-        <input type='text' placeholder='input here' value={name} onChange={onChangInput} />
-        <button type='submit'>➕</button>
+        <input
+          type='text'
+          placeholder='input here'
+          value={currentTask ? currentTask.name : name}
+          onChange={onChangeInput}
+        />
+        <button type='submit'>{currentTask ? '➕' : '✅'}</button>
       </form>
     </div>
   )
 }
-
-export default TaskInPut
